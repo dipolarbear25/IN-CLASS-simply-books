@@ -18,7 +18,7 @@ export default function NavBar() {
         <Navbar.Collapse className="justify-content-end">
           <Nav className="ml-auto">
             {/* CLOSE NAVBAR ON LINK SELECTION: https://stackoverflow.com/questions/72813635/collapse-on-select-react-bootstrap-navbar-with-nextjs-not-working */}
-            <Link passHref href="/">
+            <Link passHref href="/books">
               <Nav.Link>Books</Nav.Link>
             </Link>
             <Link passHref href="/book/new">

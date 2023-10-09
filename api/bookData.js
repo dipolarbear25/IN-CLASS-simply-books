@@ -3,15 +3,22 @@ import { clientCredentials } from '../utils/client';
 
 const endpoint = clientCredentials.databaseURL;
 
+// TODO: GET BOOKS
 const getBooks = (uid) => new Promise((resolve, reject) => {
+  console.warn(uid);
   fetch(`${endpoint}/books.json?orderBy="uid"&equalTo="${uid}"`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-  })
-    .then((response) => response.json())
-    .then((data) => resolve(Object.values(data)))
+  }).then((response) => response.json())
+    .then((data) => {
+      if (data) {
+        resolve(Object.values(data));
+      } else {
+        resolve([]);
+      }
+    })
     .catch(reject);
 });
 
@@ -20,23 +27,21 @@ const deleteBook = (firebaseKey) => new Promise((resolve, reject) => {
   fetch(`${endpoint}/books/${firebaseKey}.json`, {
     method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json',
-    }, 
-  })
-    .then((response) => response.json())
-    .then((data) => resolve((data)))
+      'Content-Type': 'application/json'
+    },
+  }).then((response) => response.json())
+    .then(resolve)
     .catch(reject);
 });
 
 // TODO: GET SINGLE BOOK
 const getSingleBook = (firebaseKey) => new Promise((resolve, reject) => {
-  fetch(`${endpoint}/books/${firebaseKey}.json`, {
+  fetch(`${endpoint}/authors/${firebaseKey}.json`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
-    }, 
-  })
-    .then((response) => response.json())
+      'Content-Type': 'application/json'
+    },
+  }).then((response) => response.json())
     .then((data) => resolve(data))
     .catch(reject);
 });
@@ -47,8 +52,8 @@ const createBook = (payload) => new Promise((resolve, reject) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-    }, 
-    body: JSON.stringify(payload)
+    },
+    body: JSON.stringify(payload),
   })
     .then((response) => response.json())
     .then((data) => resolve(data))
@@ -61,11 +66,11 @@ const updateBook = (payload) => new Promise((resolve, reject) => {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
-    }, 
-    body: JSON.stringify(payload)
+    },
+    body: JSON.stringify(payload),
   })
     .then((response) => response.json())
-    .then((data) => resolve(data))
+    .then(resolve)
     .catch(reject);
 });
 
@@ -74,26 +79,37 @@ const getBooksByAuthor = (firebaseKey) => new Promise((resolve, reject) => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-    }, 
+    },
   })
     .then((response) => response.json())
     .then((data) => resolve(Object.values(data)))
     .catch(reject);
 });
 
+// TODO: FILTER BOOKS ON SALE
 const booksOnSale = (uid) => new Promise((resolve, reject) => {
   fetch(`${endpoint}/books.json?orderBy="uid"&equalTo="${uid}"`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-  })
-    .then((response) => response.json())
+  }).then((response) => response.json())
     .then((data) => {
-      const onSale = Object.values(data).filter((item) => item.sale);
-      resolve(onSale);
+      const filteredBooks = Object.values(data).filter((book) => book.sale);
+      resolve(filteredBooks);
     })
     .catch(reject);
+});
+
+// TODO: STRETCH...SEARCH BOOKS
+const searchBooks = (searchValue, uid) => new Promise((resolve, reject) => {
+  getBooks(uid).then((booksArray) => {
+    const searchResults = booksArray.filter((book) => (
+      book.title.toLowerCase().includes(searchValue)
+      || book.description.toLowerCase().includes(searchValue)
+    ));
+    resolve(searchResults);
+  }).catch(reject);
 });
 
 export {
@@ -103,5 +119,6 @@ export {
   deleteBook,
   getSingleBook,
   updateBook,
-  getBooksByAuthor
+  searchBooks,
+  getBooksByAuthor,
 };
