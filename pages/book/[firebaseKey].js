@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { viewBookDetails } from '../../api/mergedData';
+import { getBookDetails } from '../../api/mergedData';
 
 export default function ViewBook() {
   const [bookDetails, setBookDetails] = useState({});
@@ -12,7 +12,7 @@ export default function ViewBook() {
 
   // TODO: make call to API layer to get the data
   useEffect(() => {
-    viewBookDetails(firebaseKey).then(setBookDetails);
+    getBookDetails(firebaseKey).then(setBookDetails);
   }, [firebaseKey]);
 
   return (
