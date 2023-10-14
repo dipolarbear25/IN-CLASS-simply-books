@@ -18,9 +18,8 @@ export default function ViewAuthor() {
 
   useEffect(() => {
     getADetails();
-  }, []);
+  });
 
-  console.warn(authorDetails);
   return (
     <div>{authorDetails.books?.map((book) => (
       <BookCard key={book.firebaseKey} bookObj={book} onUpdate={getADetails} />

@@ -44,7 +44,6 @@ const updateOrderBook = (payload) => new Promise((resolve, reject) => {
 });
 
 // GET A SINGLE BOOK ORDER, SO THAT I CAN REMOVE THE BOOK FROM THE ORDER
-// REFERENCED IN DOMEVENTS.JS LINE 47
 const getSingleBookOrder = async (bookId, orderId) => {
   const allOrderBooks = await getOrderBooks(orderId);
   const singleOrderBook = await allOrderBooks.find((b) => b.bookId === bookId);

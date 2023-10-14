@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import Form from 'react-bootstrap/Form';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
+import { createBook, updateBook } from '../../api/bookData';
 import { useAuth } from '../../utils/context/authContext';
 import { getAuthors } from '../../api/authorData';
-import { createBook, updateBook } from '../../api/bookData';
 
-const initialState = {
+const intialState = {
+  title: '',
   description: '',
   image: '',
   price: '',
   sale: false,
-  title: '',
 };
 
 function BookForm({ obj }) {
-  const [formInput, setFormInput] = useState(initialState);
+  const [formInput, setFormInput] = useState(intialState);
   const [authors, setAuthors] = useState([]);
   const router = useRouter();
   const { user } = useAuth();
 
   useEffect(() => {
-    getAuthors(user.uid).then(setAuthors);
-
     if (obj.firebaseKey) setFormInput(obj);
+    getAuthors(user.uid).then(setAuthors);
   }, [obj, user]);
 
   const handleChange = (e) => {
@@ -38,115 +35,108 @@ function BookForm({ obj }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (obj.firebaseKey) {
-      updateBook(formInput).then(() => router.push(`/book/${obj.firebaseKey}`));
+      updateBook(formInput).then(() => router.push('/books'));
     } else {
       const payload = { ...formInput, uid: user.uid };
       createBook(payload).then(({ name }) => {
         const patchPayload = { firebaseKey: name };
+
         updateBook(patchPayload).then(() => {
-          router.push('/');
+          router.push('/books');
         });
       });
     }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <h2 className="text-white mt-5">{obj.firebaseKey ? 'Update' : 'Create'} Book</h2>
+    <>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Book Title</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Book Title"
+            name="title"
+            value={formInput.title}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-      {/* TITLE INPUT  */}
-      <FloatingLabel controlId="floatingInput1" label="Book Title" className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Enter a title"
-          name="title"
-          value={formInput.title}
-          onChange={handleChange}
-          required
-        />
-      </FloatingLabel>
-
-      {/* IMAGE INPUT  */}
-      <FloatingLabel controlId="floatingInput2" label="Book Image" className="mb-3">
-        <Form.Control
-          type="url"
-          placeholder="Enter an image url"
-          name="image"
-          value={formInput.image}
-          onChange={handleChange}
-          required
-        />
-      </FloatingLabel>
-
-      {/* PRICE INPUT  */}
-      <FloatingLabel controlId="floatingInput3" label="Book Price" className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Enter price"
-          name="price"
-          value={formInput.price}
-          onChange={handleChange}
-          required
-        />
-      </FloatingLabel>
-
-      {/* AUTHOR SELECT  */}
-      <FloatingLabel controlId="floatingSelect" label="Author">
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Book Description"
+            name="description"
+            value={formInput.description}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Image</Form.Label>
+          <Form.Control
+            type="url"
+            placeholder="Enter Book Image"
+            name="image"
+            value={formInput.image}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Price</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter Book Price"
+            name="price"
+            value={formInput.price}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
         <Form.Select
-          aria-label="Author"
           name="author_id"
           onChange={handleChange}
-          className="mb-3"
-          value={obj.author_id} // FIXME: modify code to remove error
+          value={formInput.author_id}
           required
         >
-          <option value="">Select an Author</option>
+          <option value="">Select An Author</option>
+
           {
-            authors.map((author) => (
-              <option
-                key={author.firebaseKey}
-                value={author.firebaseKey}
-              >
-                {author.first_name} {author.last_name}
-              </option>
-            ))
-          }
+          authors.map((author) => (
+            <option
+              key={author.firebaseKey}
+              value={author.firebaseKey}
+            >
+              {author.first_name} {author.last_name}
+            </option>
+          ))
+        }
+
         </Form.Select>
-      </FloatingLabel>
-
-      {/* DESCRIPTION TEXTAREA  */}
-      <FloatingLabel controlId="floatingTextarea" label="Description" className="mb-3">
-        <Form.Control
-          as="textarea"
-          placeholder="Description"
-          style={{ height: '100px' }}
-          name="description"
-          value={formInput.description}
-          onChange={handleChange}
-          required
-        />
-      </FloatingLabel>
-
-      {/* A WAY TO HANDLE UPDATES FOR TOGGLES, RADIOS, ETC  */}
-      <Form.Check
-        className="text-white mb-3"
-        type="switch"
-        id="sale"
-        name="sale"
-        label="On Sale?"
-        checked={formInput.sale}
-        onChange={(e) => {
-          setFormInput((prevState) => ({
-            ...prevState,
-            sale: e.target.checked,
-          }));
-        }}
-      />
-
-      {/* SUBMIT BUTTON  */}
-      <Button type="submit">{obj.firebaseKey ? 'Update' : 'Create'} Book</Button>
-    </Form>
+        <Form.Group className="mb-3" controlId="formBasicCheckbox">
+          <Form.Check
+            type="switch"
+            label="On Sale?"
+            name="sale"
+            checked={formInput.sale}
+            onChange={(e) => {
+              setFormInput((prevState) => ({
+                ...prevState,
+                sale: e.target.checked,
+              }));
+            }}
+          />
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          {obj.firebaseKey ? 'Update Book' : 'Submit Book'}
+        </Button>
+      </Form>
+    </>
   );
 }
 
@@ -163,7 +153,7 @@ BookForm.propTypes = {
 };
 
 BookForm.defaultProps = {
-  obj: initialState,
+  obj: intialState,
 };
 
 export default BookForm;

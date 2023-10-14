@@ -39,7 +39,7 @@ const getOrderDetails = async (orderId) => {
   const allOrderBooks = await getOrderBooks(orderId);
 
   // GET THE BOOKS FOUND IN THE ORDER BOOKS, RETURNS AN ARRAY OF PROMISES
-  const getSingleBooks = await allOrderBooks.map((book) => getSingleBook(book.bookId));
+  const getSingleBooks = await allOrderBooks.map((orderBook) => getSingleBook(orderBook.bookId));
 
   // MOST USE PROMISE.ALL() TO RETURN EACH BOOK OBJECT
   const orderBooks = await Promise.all(getSingleBooks);
@@ -57,7 +57,7 @@ const getBooksNotInTheOrder = async (uid, orderId) => {
   const orderBooks = await getOrderBooks(orderId);
 
   // GET THE BOOKS FOUND IN THE ORDER BOOKS, RETURNS AN ARRAY OF PROMISES
-  const bookPromises = await orderBooks.map((book) => getSingleBook(book.bookId));
+  const bookPromises = await orderBooks.map((orderBook) => getSingleBook(orderBook.bookId));
 
   // MOST USE PROMISE.ALL() TO RETURN EACH BOOK OBJECT
   const books = await Promise.all(bookPromises);
